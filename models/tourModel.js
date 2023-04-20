@@ -104,6 +104,12 @@ tourSchema.pre("save", function(next) {
   next();
 });
 
+// Aggregate hook, loại ra những document có secretTour là True
+// EX: Thường dùng để loại ra isDeleted = true
+tourSchema.pre("aggregate", function() {
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+});
+
 // NOTE: trigger after an action
 // tourSchema.post("save", function(doc, next) {
 //   console.log(doc);
