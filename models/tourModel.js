@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 
 const tourSchema = new mongoose.Schema(
   {
@@ -83,6 +84,23 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+tourSchema.virtual("durationWeeks").get(() => {
+  return this.duration / 7;
+});
+
+// NOTE: Giống trigger. Khi chuẩn bị save 1 document vào collection, sẽ gọi
+// trigger previous an action
+tourSchema.pre("save", function(next) {
+  this.slug = slugify(this.name, { lower: true }); // tạo 1 document slug chứa name slugify
+  next();
+});
+
+// NOTE: trigger after an action
+// tourSchema.post("save", function(doc, next) {
+//   console.log(doc);
+//   next();
+// });
 
 const Tour = mongoose.model("Tour", tourSchema, "tours");
 
