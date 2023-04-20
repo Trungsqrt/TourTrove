@@ -88,7 +88,7 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual("durationWeeks").get(() => {
   return this.duration / 7;
 });
-// Cách sử dụng:
+// EX: Cách sử dụng:
 // Tour.findOne({ name: 'Tour Name' }, (err, tour) => {
 //   if (err) {
 //     console.log(err);
