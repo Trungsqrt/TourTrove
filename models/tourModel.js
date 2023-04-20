@@ -88,6 +88,14 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual("durationWeeks").get(() => {
   return this.duration / 7;
 });
+// Cách sử dụng:
+// Tour.findOne({ name: 'Tour Name' }, (err, tour) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log(tour.durationWeeks); // Truy cập vào trường ảo "durationWeeks"
+//   }
+// });
 
 // NOTE: Giống trigger. Khi chuẩn bị save 1 document vào collection, sẽ gọi
 // trigger previous an action
