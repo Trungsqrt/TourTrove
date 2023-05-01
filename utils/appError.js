@@ -1,7 +1,6 @@
 class AppError extends Error {
   constructor(message, statusCode) {
-    // super(message);
-    console.log(super(message));
+    super(message);
     this.statusCode = statusCode;
     // EX: 400, 404 is fail || 500 is error
     this.status = `${statusCode}`.startsWith("4") ? "failed" : "error";

@@ -28,8 +28,9 @@ app.use("/api/v1/users", userRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404)); //Here
+  // NOTE: appError don't have next(), so stop here if 404
 });
-
+// If not 404 use errorController
 //NOTE: Actually: module.exports = (err, req, res, next) => {}
 app.use(globalErrorHandler); //The next() above is call this middleware
 
