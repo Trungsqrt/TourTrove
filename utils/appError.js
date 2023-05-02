@@ -7,7 +7,6 @@ class AppError extends Error {
 
     // Error has 2 type. Operational error and Programmer errors
     // SUB: Operational error: can fix without restart program
-    // SUB: Operational error: need restart
     this.isOperational = true;
 
     // Track stack trace, and record it for analyse after
