@@ -53,6 +53,14 @@ const duplicateFieldsDBHandling = (error) => {
   return new AppError(message, 400);
 };
 
+const jwtTokenErrorHandling = () => {
+  return new AppError("Invalid token. Please login again!", 401);
+};
+
+const jwtTokenExpireHandling = () => {
+  return new AppError("Token has expired. Please login again!", 401);
+};
+
 // Main module
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
@@ -71,6 +79,8 @@ module.exports = (err, req, res, next) => {
     if (error.code === 11000) error = duplicateFieldsDBHandling(error);
     if (error.name === "ValidationError")
       error = validationErrorDBHandling(error);
+    if (error.name === "JsonWebTokenError") error = jwtTokenErrorHandling();
+    if (error.name === "TokenExpiredError") error = jwtTokenExpireHandling();
 
     procErrorHandling(error, res);
   }
