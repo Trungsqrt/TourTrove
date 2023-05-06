@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { promisify } = require("util");
+const crypto = require("crypto");
 
 const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
@@ -127,17 +128,17 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     "host"
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  const message = `<p>Forgot your password? Submit your new password and password confirm to <a href="${resetURL}">here</a></p><br/> If you didn't forget your password, please ignore this email!`;
+  const message = `Forgot your password? Submit a PATCH request with your new password and password confirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
 
   try {
     await sendEmail({
       email: user.email,
-      subject: "Natours Password reset",
+      subject: "Password reset",
       message,
     });
 
     res.status(200).json({
-      status: "success",
+      status: "Success",
       message: "Sent to email!",
     });
   } catch (err) {
@@ -152,4 +153,29 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  if (!user) return next(new AppError("Token is invalid or has expired", 400));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  // PATCH method don't need bypass validation
+  await user.save();
+
+  res.status(200).json({
+    status: "Success",
+    message:
+      "The password reset process has been completed. Please log in again!",
+  });
+});
