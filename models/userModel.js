@@ -64,10 +64,13 @@ userSchema.pre("save", async function(next) {
   next();
 });
 
+// Trigger for update password
 userSchema.pre("save", function(next) {
+  // Skip it if this is a new user creation process or not a password change
   if (!this.isModified("password") || this.isNew) return next();
 
-  this.passwordChangedAt = Date.now() - 1000;
+  // passwordChangedAt value is updated slower than the process of saving the User object
+  this.passwordChangedAt = Date.now() - 2000;
   next();
 });
 
@@ -80,6 +83,7 @@ userSchema.pre("save", function(next) {
 userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
+      // change format time (ms -> s), 10 is Decimal
       this.passwordChangedAt.getTime() / 1000,
       10
     );
