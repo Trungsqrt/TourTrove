@@ -24,17 +24,17 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // 1) Create error if user POSTs password data
+  // Create error if user post password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
-        "This route is not for password updates. Please use /updateMyPassword.",
+        "This route is not for password updates. Please use /updatepassword.",
         400
       )
     );
   }
 
-  // 2) Filtered out unwanted fields names that are not allowed to be updated
+  // Only allow to update name and email
   const filteredBody = filterObj(req.body, "name", "email");
 
   // Updating...
@@ -57,7 +57,6 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 
   res.status(204).json({
     status: "success",
-    data: null,
   });
 });
 
