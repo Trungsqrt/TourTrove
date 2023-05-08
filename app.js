@@ -1,5 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -8,18 +10,27 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
 
+// Apply all helmet middlewares for security
+app.use(helmet());
+
 // 1) MIDDLEWARES
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
+// Limit requests
+const limiter = rateLimit({
+  max: 100,
+  // 1hrs = 60m * 60s *1000ms
+  windowMs: 3600000,
+  message: "Too many requests, please try again in an hour!",
+});
+
+// apply con /api url
+app.use("/api", limiter);
 // Use json middleware to handle convert json request to object in javasciprt
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
-
-// app.use((req, res, next) => {
-//   req.requestTime = new Date().toISOString();
-//   next();
-// });
 
 // 3) ROUTES
 app.use("/api/v1/tours", tourRouter);
