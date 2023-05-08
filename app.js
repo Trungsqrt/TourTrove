@@ -2,6 +2,8 @@ const express = require("express");
 const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xssClean = require("xss-clean");
 
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -31,6 +33,12 @@ app.use("/api", limiter);
 // Use json middleware to handle convert json request to object in javasciprt
 app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
+
+// NoSQl injection attack against
+app.use(mongoSanitize());
+
+// XSS attack against
+app.use(xssClean());
 
 // 3) ROUTES
 app.use("/api/v1/tours", tourRouter);
