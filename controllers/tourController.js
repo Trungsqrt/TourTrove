@@ -42,7 +42,10 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate({
+    path: "guides",
+    select: "-__v",
+  });
   //EX: if id is not an objectID MongoDB, immediately catch by catchAsync
   // EX: if id is correctly format and not found -> catchAsync not catch
   if (!tour) {

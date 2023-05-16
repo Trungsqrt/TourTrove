@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const User = require("./userModel");
 
 const tourSchema = new mongoose.Schema(
   {
@@ -76,8 +77,37 @@ const tourSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now(),
-      // select: false,
     },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -88,19 +118,42 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual("durationWeeks").get(() => {
   return this.duration / 7;
 });
-// EX: Cách sử dụng:
-// Tour.findOne({ name: 'Tour Name' }, (err, tour) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(tour.durationWeeks); // Truy cập vào trường ảo "durationWeeks"
-//   }
-// });
+// EX: tour.durationWeeks
 
 // NOTE: Giống trigger. Khi chuẩn bị save 1 document vào collection, sẽ gọi
 // trigger previous an action
 tourSchema.pre("save", function(next) {
   this.slug = slugify(this.name, { lower: true }); // tạo 1 document slug chứa name slugify
+  next();
+});
+
+tourSchema.pre("save", function(next) {
+  // Find all users match with id
+  const guidesPromise = this.guides.map(async (id) => await User.findById(id));
+
+  // assign all user to guides
+  this.guides = Promise.all(guidesPromise);
+
+  next();
+});
+
+// QUERY MIDDLEWARE
+
+// skip secret tours
+tourSchema.pre(/^find/, function(next) {
+  this.find({ secretTour: { $ne: true } });
+
+  this.start = Date.now();
+  next();
+});
+
+// populate field
+tourSchema.pre(/^find/, function(next) {
+  this.populate({
+    path: "guides",
+    select: "-__v -passwordChangedAt -passwordResetToken -passwordResetExpires",
+  });
+
   next();
 });
 
