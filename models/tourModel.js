@@ -115,10 +115,21 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-tourSchema.virtual("durationWeeks").get(() => {
+tourSchema.virtual("durationWeeks").get(function() {
   return this.duration / 7;
 });
 // EX: tour.durationWeeks
+
+// NOTE: Create a virutal schema to virtual populate in controller
+tourSchema.virtual("reviews", {
+  // reference to model: Review
+  ref: "Review",
+  // unique field in Review model
+  foreignField: "tour",
+  // unique field in this model
+  // _id of tour
+  localField: "_id",
+});
 
 // NOTE: Giống trigger. Khi chuẩn bị save 1 document vào collection, sẽ gọi
 // trigger previous an action

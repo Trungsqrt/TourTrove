@@ -99,6 +99,7 @@ const deleteDataAll = async () => {
     await User.deleteMany();
     await Tour.deleteMany();
     await Review.deleteMany();
+    console.log("***All documents deleted***");
     process.exit();
   } catch (err) {
     console.log(err);

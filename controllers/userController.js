@@ -1,19 +1,7 @@
 const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
-
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
-
-  // SEND RESPONSE
-  res.status(200).json({
-    status: "success",
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-});
+const handler = require("./../utils/handler");
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -23,6 +11,7 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
+// Update username and email
 exports.updateMe = catchAsync(async (req, res, next) => {
   // Create error if user post password data
   if (req.body.password || req.body.passwordConfirm) {
@@ -52,6 +41,13 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+// Get current user
+exports.getMe = catchAsync(async (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+});
+
+// Deactive user
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
@@ -61,27 +57,9 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 // Define these functions in different routes
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.createUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet defined!",
-  });
-};
+exports.getUser = handler.getOne(User);
+exports.updateUser = handler.updateOne(User); //not use to update password please
+exports.deleteUser = handler.deleteOne(User);
+exports.getAllUsers = handler.getAll(User);
+// Not defined routes
+exports.createUser = (req, res) => handler.notDefined(req, res);

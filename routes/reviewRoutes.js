@@ -2,7 +2,9 @@ const express = require("express");
 const reviewController = require("../controllers/reviewController");
 const authController = require("../controllers/authController");
 
-// Allow child routes access url parameter from parent route
+// Allow child routes access url parameters from parent route
+// /:tourId/reviews => allow to access tourId
+
 const router = express.Router({ mergeParams: true });
 
 router.use(authController.protect);
