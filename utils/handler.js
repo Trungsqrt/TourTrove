@@ -31,7 +31,7 @@ exports.getAll = (Model) =>
       .limitField()
       .paginate();
 
-    const documents = await features.query.lean();
+    const documents = await features.query.lean().explain();
 
     res.status(200).json({
       status: "success",
