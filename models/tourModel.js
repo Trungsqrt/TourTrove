@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
-const User = require("./userModel");
 
 const tourSchema = new mongoose.Schema(
   {
@@ -11,7 +10,6 @@ const tourSchema = new mongoose.Schema(
       trim: true,
       maxlength: [40, "A tour name must have less or equal then 40 characters"],
       minlength: [10, "A tour name must have more or equal then 10 characters"],
-      // validate: [validator.isAlpha, 'Tour name must only contain characters']
     },
     slug: String,
     duration: {
@@ -35,6 +33,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1, "Rating must be above 1.0"],
       max: [5, "Rating must be below 5.0"],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       type: Number,
@@ -48,7 +47,6 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       validate: {
         validator: function(val) {
-          // this only points to current doc on NEW document creation
           return val < this.price;
         },
         message: "Discount price ({VALUE}) should be below regular price",
@@ -138,16 +136,6 @@ tourSchema.virtual("reviews", {
 // trigger previous an action
 tourSchema.pre("save", function(next) {
   this.slug = slugify(this.name, { lower: true }); // tạo 1 document slug chứa name slugify
-  next();
-});
-
-tourSchema.pre("save", function(next) {
-  // Find all users match with id
-  const guidesPromise = this.guides.map(async (id) => await User.findById(id));
-
-  // assign all user to guides
-  this.guides = Promise.all(guidesPromise);
-
   next();
 });
 

@@ -36,24 +36,22 @@ exports.updateTour = handler.updateOne(Tour);
 exports.deleteTour = handler.deleteOne(Tour);
 
 exports.getTourStats = catchAsync(async (req, res, next) => {
+  // NOTE: Aggregate = groupby sql
+  // operation 1 -> operation 2 -> operation n -> output
   const stats = await Tour.aggregate([
-    // match with all tours has ratingsAverage >= 4.5
-    // {
-    //   $match: { ratingsAverage: { $gte: 4.5 } },
-    // },
     {
       $group: {
         _id: { $toUpper: "$difficulty" }, //NOTE: group by difficult
-        numTours: { $sum: 1 },
-        numRatings: { $sum: "$ratingsQuantity" },
-        avgRating: { $avg: "$ratingsAverage" },
+        numTours: { $sum: 1 }, //sum of all documents
+        numRatings: { $sum: "$ratingsQuantity" }, // sum of ratingsQuantity
+        avgRating: { $avg: "$ratingsAverage" }, //average of raingAverage
         avgPrice: { $avg: "$price" },
-        minPrice: { $min: "$price" },
-        maxPrice: { $max: "$price" },
+        minPrice: { $min: "$price" }, //min price
+        maxPrice: { $max: "$price" }, //max price
       },
     },
     {
-      $sort: { avgPrice: 1 },
+      $sort: { avgPrice: 1 }, //sort by avgPrice, asc
     },
   ]);
 

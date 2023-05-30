@@ -14,6 +14,8 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const app = express();
 
+console.clear();
+
 // Apply all helmet middlewares for security
 app.use(helmet());
 

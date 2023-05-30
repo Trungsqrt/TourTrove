@@ -7,7 +7,7 @@ exports.getOne = (Model, popOptions) =>
     let query = Model.findById(req.params.id);
     if (popOptions) query = query.populate(popOptions);
 
-    const document = await query;
+    const document = await query.lean();
 
     if (!document) {
       return next(new AppError("No document found with that ID", 404));
@@ -31,7 +31,7 @@ exports.getAll = (Model) =>
       .limitField()
       .paginate();
 
-    const documents = await features.query.lean().explain();
+    const documents = await features.query.lean();
 
     res.status(200).json({
       status: "success",
