@@ -1,4 +1,5 @@
 const Tour = require("../models/tourModel");
+const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
 const handler = require("../utils/handler");
 
@@ -107,6 +108,41 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       plan,
+    },
+  });
+});
+
+// /tours-within/233/center/16.047079,108.206230/unit/mi
+exports.getTourWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const { lat, lng } = latlng.split(",");
+
+  // 3963.2 = appromixity earth radius by miles unit
+  // 6378.1 = appromixity earth radius by kilometers unit
+  const radius = unit === "mi" ? distance / 3963.2 : distance / 6378.1;
+
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        "Please provide latitude and longitude in the format lat,lon.",
+        400
+      )
+    );
+  }
+
+  // Get all tour has startLocation within the radius
+  // $geoWithin: Selects documents with geospatial data that exists entirely within a specified shape.
+  // $centerSphere: Defines a circle for a geospatial query that uses spherical geometry
+  // => in circle center at [lng,at] with radius, whether any tour with startLocation within the circle
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res.status(200).json({
+    status: "success",
+    results: tours.length,
+    data: {
+      data: tours,
     },
   });
 });

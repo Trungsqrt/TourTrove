@@ -23,6 +23,13 @@ router
     tourController.getMonthlyPlan
   );
 
+// Geospatial Query finding tour
+// /tours-within/233/center/16.047079,108.206230/unit/mi
+// /tours-within?distance=233&center=16.047079,108.206230&unit=mi
+router
+  .route("/tours-within/:distance/center/:latlng/unit/:unit")
+  .get(tourController.getTourWithin);
+
 router
   .route("/")
   .get(authController.protect, tourController.getAllTours)
