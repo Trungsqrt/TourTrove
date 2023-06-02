@@ -1,7 +1,7 @@
 [
   {
     "_id": "5c8a1d5b0190b214360dc057",
-    "name": "Jonas Schmedtmann",
+    "name": "admin",
     "email": "admin@natours.io",
     "role": "admin",
     "active": true,
@@ -10,7 +10,7 @@
   },
   {
     "_id": "5c8a1dfa2f8fb814b56fa181",
-    "name": "Lourdes Browning",
+    "name": "user",
     "email": "loulou@example.com",
     "role": "user",
     "active": true,
